@@ -1,0 +1,11 @@
+# Thong nhat ky tu xuong dong giua Windows / macOS de tranh diff ao
+* text=auto
+*.c   text
+*.h   text
+*.md  text
+*.sh  text eol=lf
+*.pdf binary
+*.png binary
+*.jpg binary
+*.xlsx binary
+*.drawio text

@@ -1,0 +1,22 @@
+# --- Theo thong bao BTL CO3009 ---
+Debug/
+Release/
+*.o
+*.d
+*.elf
+*.map
+*.su
+.metadata/
+
+# --- File build khac cua STM32CubeIDE ---
+*.list
+*.bin
+*.hex
+*.cyclo
+*.launch
+.settings/language.settings.xml
+
+# --- He dieu hanh ---
+.DS_Store
+Thumbs.db
+desktop.ini
