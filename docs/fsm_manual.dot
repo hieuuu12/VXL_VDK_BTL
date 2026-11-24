@@ -1,0 +1,21 @@
+digraph fsm_manual {
+  rankdir=LR; bgcolor="white"; pad=0.3; nodesep=0.6; ranksep=0.9;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12, penwidth=1.4];
+  edge [fontname="Helvetica", fontsize=10, color="#444444"];
+  start [shape=point, width=0.15, fillcolor=black];
+  KEEP [label="Pha đang sáng\nlúc rời AUTO\n(giữ nguyên)", shape=note, fillcolor="#e2e3e5"];
+  ALL_RED [label="ALL_RED\nĐỎ | ĐỎ", fillcolor="#f8d7da"];
+  R1G2 [label="R1G2\nĐỎ | XANH", fillcolor="#d4edda"];
+  R1Y2 [label="R1Y2\nĐỎ | VÀNG", fillcolor="#fff3cd"];
+  G1R2 [label="G1R2\nXANH | ĐỎ", fillcolor="#d4edda"];
+  Y1R2 [label="Y1R2\nVÀNG | ĐỎ", fillcolor="#fff3cd"];
+  start -> KEEP [label="fsm_manual_enter(pha AUTO)"];
+  KEEP -> ALL_RED [style=dashed, label="có thể là"];
+  KEEP -> R1G2 [style=dashed, label="hoặc R1Y2 / G1R2 / Y1R2"];
+  ALL_RED -> R1G2 [label="B2 & !khoá"];
+  R1G2 -> R1Y2 [label="B2 & !khoá"];
+  R1Y2 -> G1R2 [label="B2 & !khoá"];
+  G1R2 -> Y1R2 [label="B2 & !khoá"];
+  Y1R2 -> R1G2 [label="B2 & !khoá", constraint=false];
+  note [shape=plaintext, style="", label="Mỗi lần chuyển: traffic_apply_phase(pha mới), khoá = 1, timer_set(LOCK, 1 s)\nB2 trong lúc khoá: bị bỏ qua  |  timer LOCK hết hạn: khoá = 0", fontsize=10];
+}
