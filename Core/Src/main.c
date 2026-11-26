@@ -22,8 +22,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "scheduler.h"
 #include "global.h"
+#include "scheduler.h"
+#include "software_timer.h"
+#include "button.h"
+#include "traffic_light.h"
+#include "i2c_bus.h"
+#include "lcd.h"
+#include "dht20.h"
+#include "display.h"
+#include "fsm_mode.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +54,7 @@ I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-uint32_t err_id = NO_TASK_ID;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,15 +70,6 @@ static void MX_TIM2_Init(void);
 /* USER CODE BEGIN 0 */
 void heartbeat(void) {
 	HAL_GPIO_TogglePin(LED_HB_GPIO_Port, LED_HB_Pin);
-}
-
-void led_err_toggle(void) {
-	HAL_GPIO_TogglePin(LED_ERR_GPIO_Port, LED_ERR_Pin);
-}
-
-void one_shot_test(void) {
-	SCH_Delete_Task(err_id);
-	HAL_GPIO_WritePin(LED_ERR_GPIO_Port, LED_ERR_Pin, GPIO_PIN_SET);
 }
 /* USER CODE END 0 */
 
@@ -105,10 +104,23 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  i2c_bus_recover();
+  lcd_init();
+  dht20_init();
+  display_init();
+  lcd_flush_all();
+  timer_init();
+  button_init();
+  traffic_init();
   SCH_Init();
+  SCH_Add_Task(timer_run, 0, 1);
+  SCH_Add_Task(button_read, 0, 1);
+  SCH_Add_Task(fsm_mode_run, 1, 1);
+  SCH_Add_Task(display_update, 3, 25);
+  SCH_Add_Task(lcd_flush, 5, 1);
+  SCH_Add_Task(dht20_trigger, 100, 200);
   SCH_Add_Task(heartbeat, 0, 50);
-  err_id = SCH_Add_Task(led_err_toggle, 0, 100);
-  SCH_Add_Task(one_shot_test, 300, 0);
+  fsm_mode_init();
   HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
 
