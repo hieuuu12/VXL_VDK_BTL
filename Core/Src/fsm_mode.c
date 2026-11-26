@@ -6,6 +6,7 @@
 #include "fsm_automatic.h"
 #include "fsm_manual.h"
 #include "fsm_tuning.h"
+#include "display.h"
 
 #define BLINK_TICKS 50
 
@@ -42,6 +43,7 @@ static void enter_tuning(void) {
 }
 
 static void exit_tuning(void) {
+	fsm_tuning_exit();
 	SCH_Delete_Task(blink_id);
 	blink_id = NO_TASK_ID;
 	blink_on = 0;
@@ -62,6 +64,7 @@ void fsm_mode_run(void) {
 			button_clear_all();
 			enter_manual();
 		} else {
+			if (button_is_pressed(BTN_USER)) display_next_page();
 			fsm_auto_run();
 		}
 		break;
@@ -70,6 +73,7 @@ void fsm_mode_run(void) {
 			button_clear_all();
 			enter_tuning();
 		} else {
+			if (button_is_pressed(BTN_USER)) display_next_page();
 			fsm_manual_run();
 		}
 		break;

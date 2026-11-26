@@ -57,7 +57,7 @@ Mọi thay đổi trong file này ảnh hưởng tới code của cả nhóm, đ
 | Reset → AUTO | ĐỎ–ĐỎ 1 s rồi R1G2 | `fsm_mode_init()` nạp giờ mặc định 5/3/2, gọi `fsm_auto_enter()` | Màn AUTO | Chỉ cấp Xanh sau khi cả 2 tuyến đã Đỏ |
 | AUTO → MANUAL (B1) | Giữ nguyên pha | `button_clear_all()`; `fsm_manual_enter(fsm_auto_get_phase())` | Màn MANUAL | Pha đang chạy vốn hợp lệ, không nhảy đột ngột |
 | MANUAL → TUNING (B1) | ĐỎ–ĐỎ ngay, nháy 1 Hz | `fsm_tuning_enter()`; `SCH_Add_Task(blink_red, 50, 50)`, lưu ID | Màn TUNING | Không còn tuyến nào Xanh |
-| TUNING → AUTO (B1) | ĐỎ–ĐỎ 1 s rồi R1G2 | `SCH_Delete_Task(blink_id)`; `fsm_auto_enter()` đọc giờ mới | Màn AUTO | Xả ĐỎ–ĐỎ trước khi cấp Xanh với giờ mới |
+| TUNING → AUTO (B1) | ĐỎ–ĐỎ 1 s rồi R1G2 | `fsm_tuning_exit()`; `SCH_Delete_Task(blink_id)`; `fsm_auto_enter()` đọc giờ mới | Màn AUTO | Xả ĐỎ–ĐỎ trước khi cấp Xanh với giờ mới |
 
 Bất biến: nếu một tuyến Xanh thì tuyến kia phải Đỏ. Lớp 1 là FSM (chỉ dùng các cặp hợp lệ), lớp 2 là `traffic_set_pair()` của B (cặp sai → ép ĐỎ–ĐỎ, sáng `LED_ERR`).
 
@@ -68,8 +68,8 @@ Bất biến: nếu một tuyến Xanh thì tuyến kia phải Đỏ. Lớp 1 l�
 | `timer_run` | 0 | 1 | software_timer.c | B |
 | `button_read` | 0 | 1 | button.c | B |
 | `fsm_mode_run` | 1 | 1 | fsm_mode.c | A |
-| `lcd_flush` | 2 | 1 | lcd.c | C |
 | `display_update` | 3 | 25 | display.c | C |
+| `lcd_flush` | 5 | 1 | lcd.c | C |
 | `dht20_trigger` | 100 | 200 | dht20.c | C |
 | `heartbeat` (PA5) | 0 | 50 | main.c | A |
 | `blink_red` (chỉ có trong TUNING) | 50 | 50 | fsm_mode.c | A |
@@ -107,8 +107,10 @@ Các hàm `fsm_mode.c` gọi sang phần của B và C:
 | traffic_light.h (B) | `traffic_set_pair(TL_RED / TL_OFF, ...)` | Đã có |
 | fsm_automatic.h (B) | `fsm_auto_enter()`, `fsm_auto_run()`, `fsm_auto_get_phase()` | Đã có |
 | fsm_manual.h (B) | `fsm_manual_enter(tl_phase_t)`, `fsm_manual_run()` | Đã có |
-| fsm_tuning.h (C) | `void fsm_tuning_enter(void)` | Chép `g_time_*` ra biến tạm |
-| | `void fsm_tuning_run(void)` | Xử lý B2, B3, B4, USER. **Không** gọi `traffic_set_pair` (đèn do `blink_red` lo). Lưu hợp lệ thì ghi vào `g_time_*` |
+| fsm_tuning.h (C) | `fsm_tuning_enter()`, `fsm_tuning_run()`, `fsm_tuning_exit()` | Chỉnh trên bản tạm; **không** gọi `traffic_set_pair` (đèn do `blink_red` lo); Lưu hợp lệ thì ghi vào `g_time_*` |
+| display.h (C) | `display_next_page()` | `fsm_mode` gọi khi nhấn USER ở AUTO hoặc MANUAL |
+
+Tên hàm của B mà code C phải dùng: `button_is_pressed()`, `button_is_repeat()` (giữ ≥ 1 s, lặp mỗi 200 ms), `tl_color_t` với `TL_RED / TL_YELLOW / TL_GREEN / TL_OFF`, `TIMER_AUTO_PHASE`, `traffic_fault()`.
 
 Luật chung: không gọi `HAL_` trong `fsm_*.c`; không `HAL_Delay` sau khi scheduler chạy; `display` chọn màn hình theo `g_mode`.
 
@@ -145,6 +147,8 @@ void heartbeat(void) {
   i2c_bus_recover();
   lcd_init();
   dht20_init();
+  display_init();
+  lcd_flush_all();
   timer_init();
   button_init();
   traffic_init();
@@ -152,8 +156,8 @@ void heartbeat(void) {
   SCH_Add_Task(timer_run, 0, 1);
   SCH_Add_Task(button_read, 0, 1);
   SCH_Add_Task(fsm_mode_run, 1, 1);
-  SCH_Add_Task(lcd_flush, 2, 1);
   SCH_Add_Task(display_update, 3, 25);
+  SCH_Add_Task(lcd_flush, 5, 1);
   SCH_Add_Task(dht20_trigger, 100, 200);
   SCH_Add_Task(heartbeat, 0, 50);
   fsm_mode_init();
@@ -178,4 +182,3 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 /* USER CODE END 4 */
 ```
 
-Tên hàm của `dht20` và `display` lấy theo bản C đẩy lên; nếu khác thì sửa lại 3 dòng tương ứng.
