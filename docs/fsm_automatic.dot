@@ -1,0 +1,17 @@
+digraph fsm_automatic {
+  rankdir=LR; bgcolor="white"; pad=0.3; nodesep=0.6; ranksep=0.9;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12, penwidth=1.4];
+  edge [fontname="Helvetica", fontsize=10, color="#444444"];
+  start [shape=point, width=0.15, fillcolor=black];
+  ALL_RED [label="ALL_RED\nĐèn1: ĐỎ | Đèn2: ĐỎ\n(1 s)", fillcolor="#f8d7da"];
+  R1G2 [label="R1G2\nĐèn1: ĐỎ | Đèn2: XANH\n(time_green)", fillcolor="#d4edda"];
+  R1Y2 [label="R1Y2\nĐèn1: ĐỎ | Đèn2: VÀNG\n(time_yellow)", fillcolor="#fff3cd"];
+  G1R2 [label="G1R2\nĐèn1: XANH | Đèn2: ĐỎ\n(time_green)", fillcolor="#d4edda"];
+  Y1R2 [label="Y1R2\nĐèn1: VÀNG | Đèn2: ĐỎ\n(time_yellow)", fillcolor="#fff3cd"];
+  start -> ALL_RED [label="fsm_auto_enter()"];
+  ALL_RED -> R1G2 [label="timer hết hạn"];
+  R1G2 -> R1Y2 [label="timer hết hạn"];
+  R1Y2 -> G1R2 [label="timer hết hạn"];
+  G1R2 -> Y1R2 [label="timer hết hạn"];
+  Y1R2 -> R1G2 [label="timer hết hạn\n(nạp lại time_green/yellow)", constraint=false];
+}

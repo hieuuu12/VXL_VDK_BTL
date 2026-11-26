@@ -1,0 +1,13 @@
+digraph fsm_mode {
+  rankdir=LR; bgcolor="white"; pad=0.3; ranksep=1.1;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12, fillcolor="#dbe9f6", penwidth=1.4];
+  edge [fontname="Helvetica", fontsize=10];
+  start [shape=point, width=0.15, fillcolor=black];
+  AUTO [label="AUTO\n(fsm_automatic - B)"];
+  MANUAL [label="MANUAL\n(fsm_manual - B)"];
+  TUNING [label="TUNING\n(fsm_tuning - C)"];
+  start -> AUTO [label="khởi động"];
+  AUTO -> MANUAL [label="B1 / button_clear_all,\nfsm_manual_enter(fsm_auto_get_phase())"];
+  MANUAL -> TUNING [label="B1 / button_clear_all,\nfsm_tuning_enter()"];
+  TUNING -> AUTO [label="B1 / button_clear_all,\nfsm_auto_enter() (ALL_RED trước)", constraint=false];
+}
