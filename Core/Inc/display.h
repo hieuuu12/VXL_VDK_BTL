@@ -17,7 +17,7 @@
 #define INC_DISPLAY_H_
 
 #include <stdint.h>
-#include "traffic_light.h"   /* light_t (B) */
+#include "traffic_light.h"   /* tl_color_t (B) */
 
 #define DISPLAY_TICK_MS      10U    /* 1 tick scheduler                   */
 #define DISPLAY_MSG_MAX      16U
@@ -37,7 +37,7 @@ void display_set_tuning(display_sel_t sel, uint8_t red, uint8_t green, uint8_t a
                         uint8_t unsaved);                /* fsm_tuning day du lieu    */
 
 /* ham thuan, tach ra de test tren PC: tinh so giay dem nguoc cua 1 tuyen */
-uint8_t display_countdown_s(light_t mine, light_t other,
+uint8_t display_countdown_s(tl_color_t mine, tl_color_t other,
                             uint32_t phase_remaining_ms, uint8_t time_amber_s);
 
 #endif /* INC_DISPLAY_H_ */

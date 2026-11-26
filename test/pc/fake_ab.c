@@ -54,21 +54,21 @@ void fake_tick(int n)
 
 /* ---- software timer (B) ---- */
 uint32_t fake_phase_ms = 0;
-void timer_set(uint8_t id, uint32_t ms) { if (id == TMR_PHASE) fake_phase_ms = ms; }
+void timer_set(uint8_t id, uint32_t ms) { if (id == TIMER_AUTO_PHASE) fake_phase_ms = ms; }
 uint8_t timer_expired(uint8_t id) { (void)id; return 0; }
-uint32_t timer_remaining_ms(uint8_t id) { return id == TMR_PHASE ? fake_phase_ms : 0; }
+uint32_t timer_remaining_ms(uint8_t id) { return id == TIMER_AUTO_PHASE ? fake_phase_ms : 0; }
 void timer_run(void) {}
 
 /* ---- button (B): test dat co, doc 1 lan la mat ---- */
 uint8_t fake_pressed[NUM_BUTTONS], fake_held[NUM_BUTTONS];
 void button_scan(void) {}
-uint8_t button_pressed(button_id_t b) { uint8_t v = fake_pressed[b]; fake_pressed[b] = 0; return v; }
-uint8_t button_held(button_id_t b) { uint8_t v = fake_held[b]; fake_held[b] = 0; return v; }
+uint8_t button_is_pressed(button_id_t b) { uint8_t v = fake_pressed[b]; fake_pressed[b] = 0; return v; }
+uint8_t button_is_repeat(button_id_t b) { uint8_t v = fake_held[b]; fake_held[b] = 0; return v; }
 void button_clear_all(void) { memset(fake_pressed, 0, sizeof(fake_pressed)); memset(fake_held, 0, sizeof(fake_held)); }
 
 /* ---- traffic light (B) ---- */
-light_t fake_l1 = LIGHT_RED, fake_l2 = LIGHT_RED;
+tl_color_t fake_l1 = TL_RED, fake_l2 = TL_RED;
 int fake_fault = 0;
-uint8_t traffic_set_pair(light_t a, light_t b) { fake_l1 = a; fake_l2 = b; return 1; }
-light_t traffic_get(uint8_t r) { return r == 1 ? fake_l1 : fake_l2; }
-uint8_t traffic_is_fault(void) { return (uint8_t)fake_fault; }   /* ban "that" cua B */
+uint8_t traffic_set_pair(tl_color_t a, tl_color_t b) { fake_l1 = a; fake_l2 = b; return 1; }
+tl_color_t traffic_get(uint8_t r) { return r == 1 ? fake_l1 : fake_l2; }
+uint8_t traffic_fault(void) { return (uint8_t)fake_fault; }   /* ban "that" cua B */

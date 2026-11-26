@@ -92,18 +92,18 @@ static void handle_edit(uint8_t idx)
 {
     uint8_t changed = 0;
 
-    if (button_pressed(BTN_3) || button_held(BTN_3)) {
+    if (button_is_pressed(BTN_3) || button_is_repeat(BTN_3)) {
         adjust(idx, +1);
         changed = 1;
     }
-    if (button_pressed(BTN_4) || button_held(BTN_4)) {
+    if (button_is_pressed(BTN_4) || button_is_repeat(BTN_4)) {
         adjust(idx, -1);
         changed = 1;
     }
     if (changed) {
         refresh_display();
     }
-    if (button_pressed(BTN_USER)) {
+    if (button_is_pressed(BTN_USER)) {
         save();
     }
 }
@@ -125,7 +125,7 @@ void fsm_tuning_run(void)
     switch (s_state) {
     case TUNE_RED:
         handle_edit(TUNE_RED);
-        if (button_pressed(BTN_2)) {
+        if (button_is_pressed(BTN_2)) {
             s_state = TUNE_GREEN;
             refresh_display();
         }
@@ -133,7 +133,7 @@ void fsm_tuning_run(void)
 
     case TUNE_GREEN:
         handle_edit(TUNE_GREEN);
-        if (button_pressed(BTN_2)) {
+        if (button_is_pressed(BTN_2)) {
             s_state = TUNE_AMBER;
             refresh_display();
         }
@@ -141,7 +141,7 @@ void fsm_tuning_run(void)
 
     case TUNE_AMBER:
         handle_edit(TUNE_AMBER);
-        if (button_pressed(BTN_2)) {
+        if (button_is_pressed(BTN_2)) {
             s_state = TUNE_RED;
             refresh_display();
         }

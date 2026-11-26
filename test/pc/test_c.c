@@ -43,7 +43,7 @@ static void boot(void)
     g_fake_ms = 0;
     g_mode = MODE_INIT;
     g_time_red = 5; g_time_green = 3; g_time_amber = 2;
-    fake_l1 = LIGHT_RED; fake_l2 = LIGHT_RED; fake_fault = 0;
+    fake_l1 = TL_RED; fake_l2 = TL_RED; fake_fault = 0;
     fake_dht_present = 1; fake_dht_corrupt_crc = 0; fake_dht_measure_ms = 80;
     fake_dht_set(28.5, 65.2);
     SCH_Init();
@@ -148,12 +148,12 @@ static void test_dht20(void)
 static void test_countdown(void)
 {
     printf("[3] Dem nguoc (cong thuc muc 2.3)\n");
-    CHECK(display_countdown_s(LIGHT_GREEN, LIGHT_RED, 2300, 2) == 3, "Xanh 2.3 s");
-    CHECK(display_countdown_s(LIGHT_RED, LIGHT_GREEN, 2300, 2) == 5, "Do khi kia Xanh = pha + T_V");
-    CHECK(display_countdown_s(LIGHT_RED, LIGHT_AMBER, 1500, 2) == 2, "Do khi kia Vang = pha");
-    CHECK(display_countdown_s(LIGHT_AMBER, LIGHT_RED, 1, 2) == 1, "lam tron len");
-    CHECK(display_countdown_s(LIGHT_GREEN, LIGHT_RED, 0, 2) == 0, "het gio");
-    CHECK(display_countdown_s(LIGHT_RED, LIGHT_GREEN, 98000, 9) == 99, "kep 99");
+    CHECK(display_countdown_s(TL_GREEN, TL_RED, 2300, 2) == 3, "Xanh 2.3 s");
+    CHECK(display_countdown_s(TL_RED, TL_GREEN, 2300, 2) == 5, "Do khi kia Xanh = pha + T_V");
+    CHECK(display_countdown_s(TL_RED, TL_YELLOW, 1500, 2) == 2, "Do khi kia Vang = pha");
+    CHECK(display_countdown_s(TL_YELLOW, TL_RED, 1, 2) == 1, "lam tron len");
+    CHECK(display_countdown_s(TL_GREEN, TL_RED, 0, 2) == 0, "het gio");
+    CHECK(display_countdown_s(TL_RED, TL_GREEN, 98000, 9) == 99, "kep 99");
 }
 
 static void test_screens(void)
@@ -162,10 +162,10 @@ static void test_screens(void)
     boot();
     fake_tick(110);                       /* co so lieu DHT20 */
     g_mode = MODE_AUTO;
-    fake_l1 = LIGHT_RED; fake_l2 = LIGHT_GREEN; fake_phase_ms = 2300;
+    fake_l1 = TL_RED; fake_l2 = TL_GREEN; fake_phase_ms = 2300;
     fake_tick(30);
     EXPECT_LCD("AUTO 1:R05 2:G03", "T:28.5C H:65.2%");
-    fake_l1 = LIGHT_RED; fake_l2 = LIGHT_AMBER; fake_phase_ms = 1200;
+    fake_l1 = TL_RED; fake_l2 = TL_YELLOW; fake_phase_ms = 1200;
     fake_tick(30);
     EXPECT_LCD("AUTO 1:R02 2:Y02", "T:28.5C H:65.2%");
 
@@ -175,11 +175,11 @@ static void test_screens(void)
     display_next_page();
 
     g_mode = MODE_MANUAL;
-    fake_l1 = LIGHT_GREEN; fake_l2 = LIGHT_RED;
+    fake_l1 = TL_GREEN; fake_l2 = TL_RED;
     fake_tick(30);
     EXPECT_LCD("MAN G1 - R2", "T:28.5C H:65.2%");
 
-    fake_fault = 1; fake_l1 = LIGHT_RED; fake_l2 = LIGHT_RED;
+    fake_fault = 1; fake_l1 = TL_RED; fake_l2 = TL_RED;
     fake_tick(30);
     EXPECT_LCD("SAFETY ERR", "T:28.5C H:65.2%");
     fake_fault = 0;

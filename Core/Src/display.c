@@ -17,7 +17,7 @@
 
 /* B can them ham nay vao traffic_light.c (tra 1 khi lop bao ve 2 da ep ALL RED).
  * Ban "weak" duoi day chi de build duoc khi B chua co; ban that cua B se thay the. */
-__attribute__((weak)) uint8_t traffic_is_fault(void)
+__attribute__((weak)) uint8_t traffic_fault(void)
 {
     return 0;
 }
@@ -33,24 +33,24 @@ static uint8_t       s_tune_unsaved = 0;
 
 /* ---------------- ham thuan ---------------- */
 
-static char light_char(light_t l)
+static char light_char(tl_color_t l)
 {
     switch (l) {
-    case LIGHT_RED:   return 'R';
-    case LIGHT_AMBER: return 'Y';
-    case LIGHT_GREEN: return 'G';
+    case TL_RED:   return 'R';
+    case TL_YELLOW: return 'Y';
+    case TL_GREEN: return 'G';
     default:          return '-';
     }
 }
 
-uint8_t display_countdown_s(light_t mine, light_t other,
+uint8_t display_countdown_s(tl_color_t mine, tl_color_t other,
                             uint32_t phase_remaining_ms, uint8_t time_amber_s)
 {
     /* lam tron len: con 6.01 s hien 07, con 0.2 s hien 01 */
     uint32_t s = (phase_remaining_ms + 999UL) / 1000UL;
 
     /* tuyen dang Do ma tuyen kia dang Xanh: con phai cho them pha Vang cua tuyen kia */
-    if (mine == LIGHT_RED && other == LIGHT_GREEN) {
+    if (mine == TL_RED && other == TL_GREEN) {
         s += time_amber_s;
     }
     return (uint8_t)(s > 99UL ? 99UL : s);
@@ -83,8 +83,8 @@ static void render(void)
 {
     char l1[24];
     char l2[24];
-    light_t a = traffic_get(1);
-    light_t b = traffic_get(2);
+    tl_color_t a = traffic_get(1);
+    tl_color_t b = traffic_get(2);
 
     l1[0] = '\0';
     l2[0] = '\0';
@@ -96,7 +96,7 @@ static void render(void)
         break;
 
     case MODE_AUTO: {
-        uint32_t rem = timer_remaining_ms(TMR_PHASE);
+        uint32_t rem = timer_remaining_ms(TIMER_AUTO_PHASE);
         snprintf(l1, sizeof(l1), "AUTO 1:%c%02u 2:%c%02u",
                  light_char(a), (unsigned)display_countdown_s(a, b, rem, g_time_amber),
                  light_char(b), (unsigned)display_countdown_s(b, a, rem, g_time_amber));
@@ -132,7 +132,7 @@ static void render(void)
         break;
     }
 
-    if (traffic_is_fault()) {
+    if (traffic_fault()) {
         snprintf(l1, sizeof(l1), "SAFETY ERR");
     }
     if (s_msg_active) {
